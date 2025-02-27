@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envío de Texto y Comentarios</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        h1 {
+            color: #2d3748;
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            font-weight: 500;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button[type="submit"] {
+            background-color: #667eea;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #5a67d8;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            padding: 0.5rem 1rem;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        .success-message {
+            color: #047857;
+            background-color: #ecfdf5;
+            border: 1px solid #6ee7b7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #dc2626;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Envío de Texto y Comentarios</h1>
+            <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+        </div>
+        <form id="textForm">
+            <div class="form-group">
+                <label for="textFragment">Fragmento de Texto:</label>
+                <textarea id="textFragment" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="userComments">Tus Comentarios:</label>
+                <textarea id="userComments" required></textarea>
+            </div>
+            <button type="submit">Enviar</button>
+        </form>
+        <div id="successMessage" class="success-message">¡Enviado con éxito!</div>
+        <div id="errorMessage" class="error-message">Hubo un error al enviar los datos.</div>
+    </div>
+
+    <script>
+        // Verificar autenticación
+        if (!localStorage.getItem('isAuthenticated')) {
+            window.location.href = 'index.html';
+        }
+        
+        function logout() {
+            localStorage.removeItem('isAuthenticated');
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('textForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const textFragment = document.getElementById('textFragment').value;
+            const userComments = document.getElementById('userComments').value;
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            const data = {
+                textFragment: textFragment,
+                userComments: userComments
+            };
+
+            try {
+                const response = await fetch('https://hook.us2.make.com/llngyl4qdedxe2t9ldzju7cf23m4ntmj', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    this.reset();
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 3000);
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Error de conexión: ' + error.message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html> 
